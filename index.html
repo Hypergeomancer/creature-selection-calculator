@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Winding Way & Lead the Stampede - Probability Calculator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0d5e34 0%, #15803d 50%, #16a34a 100%);
+            min-height: 100vh;
+            padding: 15px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            padding: 25px;
+        }
+
+        h1 {
+            color: #14532d;
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 25px;
+            font-style: italic;
+            font-size: 0.95em;
+        }
+
+        .section {
+            margin-bottom: 20px;
+            padding: 18px;
+            background: #f0fdf4;
+            border-radius: 10px;
+            border-left: 4px solid #15803d;
+        }
+
+        .section h2 {
+            color: #14532d;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #475569;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        select, input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #bbf7d0;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        select:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: #16a34a;
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+        }
+
+        .row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .row .input-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #15803d 0%, #16a34a 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 15px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(21, 128, 61, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .results {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .result-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+        }
+
+        .result-card h3 {
+            color: #14532d;
+            margin-bottom: 12px;
+            font-size: 1.2em;
+        }
+
+        .expected-value {
+            font-size: 2.8em;
+            font-weight: bold;
+            color: #16a34a;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .prob-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            font-size: 0.95em;
+        }
+
+        .prob-table th,
+        .prob-table td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .prob-table th {
+            background: #15803d;
+            color: white;
+            font-weight: 600;
+        }
+
+        .prob-table tr:hover {
+            background: #f0fdf4;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 15px;
+        }
+
+        .info-box {
+            background: #dcfce7;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+            border-left: 4px solid #22c55e;
+        }
+
+        .info-box p {
+            color: #14532d;
+            line-height: 1.5;
+            font-size: 0.95em;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #64748b;
+            font-size: 0.9em;
+            border-top: 2px solid #dcfce7;
+        }
+
+        .footer p {
+            margin-bottom: 8px;
+        }
+
+        .footer a {
+            color: #15803d;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .footer a:hover {
+            color: #16a34a;
+            text-decoration: underline;
+        }
+
+        .youtube-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #dcfce7;
+            padding: 8px 16px;
+            border-radius: 6px;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+
+        .youtube-link:hover {
+            background: #bbf7d0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .subtitle {
+                font-size: 0.85em;
+            }
+
+            .section {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+
+            .section h2 {
+                font-size: 1.1em;
+                margin-bottom: 12px;
+            }
+
+            .row {
+                flex-direction: column;
+            }
+
+            .row .input-group {
+                min-width: 100%;
+            }
+
+            .expected-value {
+                font-size: 2em;
+            }
+
+            .chart-container {
+                height: 220px;
+            }
+
+            .prob-table {
+                font-size: 0.8em;
+            }
+
+            .prob-table th,
+            .prob-table td {
+                padding: 6px 3px;
+            }
+
+            button {
+                font-size: 15px;
+                padding: 12px;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .container {
+                max-width: 750px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎲 <span style="color: #16a34a;">Winding Way</span> & <span style="color: #15803d;">Lead the Stampede</span></h1>
+        <p class="subtitle">Probability Calculator for Creature Selection Effects</p>
+
+        <div class="info-box" style="margin-bottom: 25px; background: #f0fdf4; border-color: #22c55e;">
+            <p style="margin-bottom: 10px;"><strong>Purpose:</strong></p>
+            <p style="font-size: 0.9em; line-height: 1.6; margin-bottom: 15px;">
+                This calculator computes the <strong>expected value</strong> and <strong>probability distribution</strong> 
+                of the number of creature cards revealed by <em>Winding Way</em> or <em>Lead the Stampede</em> 
+                based on deck composition and game state parameters.
+            </p>
+            
+            <p style="margin-bottom: 8px;"><strong>How to use:</strong></p>
+            <p style="font-size: 0.9em; line-height: 1.6;">
+                Enter the game state parameters at the snapshot when the spell is <strong>on the stack, just before resolution</strong>. 
+                At this moment, the spell itself counts as a visible non-creature card (already cast but not yet resolved).
+            </p>
+            <p style="font-size: 0.85em; margin-top: 10px; color: #15803d;">
+                <em>💡 Tip: If you're the player, include your hand information for exact probabilities. If you're the opponent, use estimated deck composition for expected values.</em>
+            </p>
+        </div>
+
+        <div class="section">
+            <h2>1. Basic Configuration</h2>
+            <div class="row">
+                <div class="input-group">
+                    <label for="perspective">Your Perspective</label>
+                    <select id="perspective" onchange="updateFormVisibility()">
+                        <option value="">-- Select --</option>
+                        <option value="player">Player (casting the spell)</option>
+                        <option value="opponent">Opponent (observing)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="spell">Spell Being Cast</label>
+                    <select id="spell">
+                        <option value="">-- Select --</option>
+                        <option value="winding">Winding Way (4 cards)</option>
+                        <option value="lead">Lead the Stampede (5 cards)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>2. <span id="deckLabel">Deck Composition</span></h2>
+            <div class="row">
+                <div class="input-group">
+                    <label for="totalCreatures" id="labelC">Total Creatures (C)</label>
+                    <input type="number" id="totalCreatures" min="0" max="60" value="38">
+                </div>
+                <div class="input-group">
+                    <label for="totalNonCreatures" id="labelN">Total Non-Creatures (N)</label>
+                    <input type="number" id="totalNonCreatures" min="0" max="60" value="22">
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>3. Game State (Public Information)</h2>
+            <div class="row">
+                <div class="input-group">
+                    <label for="visibleCreatures">Visible Creatures (C<sub>vis</sub>)</label>
+                    <input type="number" id="visibleCreatures" min="0" max="60" value="5">
+                </div>
+                <div class="input-group">
+                    <label for="visibleNonCreatures">Visible Non-Creatures (N<sub>vis</sub>)</label>
+                    <input type="number" id="visibleNonCreatures" min="0" max="60" value="3">
+                </div>
+                <div class="input-group">
+                    <label for="handSize">Cards in Hand (h)</label>
+                    <input type="number" id="handSize" min="0" max="20" value="4">
+                </div>
+            </div>
+        </div>
+
+        <div class="section hidden" id="playerSection">
+            <h2>4. Your Hand (Private Information)</h2>
+            <div class="input-group">
+                <label for="creaturesInHand">Creatures in Hand (c)</label>
+                <input type="number" id="creaturesInHand" min="0" max="20" value="2">
+            </div>
+        </div>
+
+        <button onclick="calculate()">Calculate Probabilities</button>
+
+        <div class="results" id="results">
+            <div class="result-card">
+                <h3>📊 Results</h3>
+                <div id="expectedValueDisplay"></div>
+                <div id="tableDisplay"></div>
+                <div class="chart-container">
+                    <canvas id="probabilityChart"></canvas>
+                </div>
+                <div class="info-box" id="infoBox"></div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Created by <strong style="color: #15803d;">Hypergeomancer</strong></p>
+            <p style="font-size: 0.9em; margin-bottom: 12px;">
+                Based on the paper <em>"Probabilistic Analysis of Creature Selection:<br>Winding Way and Lead the Stampede"</em>
+            </p>
+            <a href="https://www.youtube.com/@Hypergeomancer" target="_blank" rel="noopener noreferrer" class="youtube-link">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+                Watch Video Explanation
+            </a>
+        </div>
+    </div>
+
+    <script>
+        let chart = null;
+
+        function updateFormVisibility() {
+            const perspective = document.getElementById('perspective').value;
+            const playerSection = document.getElementById('playerSection');
+            const deckLabel = document.getElementById('deckLabel');
+            const labelC = document.getElementById('labelC');
+            const labelN = document.getElementById('labelN');
+            
+            if (perspective === 'player') {
+                playerSection.classList.remove('hidden');
+                deckLabel.textContent = 'Deck Composition';
+                labelC.textContent = 'Total Creatures (C)';
+                labelN.textContent = 'Total Non-Creatures (N)';
+            } else if (perspective === 'opponent') {
+                playerSection.classList.add('hidden');
+                deckLabel.textContent = 'Estimated Deck Composition';
+                labelC.textContent = 'Estimated Creatures (C)';
+                labelN.textContent = 'Estimated Non-Creatures (N)';
+            } else {
+                playerSection.classList.add('hidden');
+                deckLabel.textContent = 'Deck Composition';
+                labelC.textContent = 'Total Creatures (C)';
+                labelN.textContent = 'Total Non-Creatures (N)';
+            }
+        }
+
+        function binomial(n, k) {
+            if (k < 0 || k > n) return 0;
+            if (k === 0 || k === n) return 1;
+            
+            let result = 1;
+            for (let i = 1; i <= k; i++) {
+                result *= (n - i + 1) / i;
+            }
+            return result;
+        }
+
+        function hypergeometric(N1, N2, n, k) {
+            const numerator = binomial(N1, k) * binomial(N2, n - k);
+            const denominator = binomial(N1 + N2, n);
+            return denominator > 0 ? numerator / denominator : 0;
+        }
+
+        function calculateProbabilities(C, N, Cvis, Nvis, h, c, sampleSize, isPerspectivePlayer) {
+            const creaturesInLibrary = C - Cvis - c;
+            const nonCreaturesInLibrary = N - Nvis - (h - c);
+            const d = creaturesInLibrary + nonCreaturesInLibrary;
+
+            if (isPerspectivePlayer) {
+                const probabilities = [];
+                for (let k = 0; k <= sampleSize; k++) {
+                    const prob = hypergeometric(creaturesInLibrary, nonCreaturesInLibrary, sampleSize, k);
+                    probabilities.push({ k, prob });
+                }
+                
+                const expectedValue = probabilities.reduce((sum, p) => sum + p.k * p.prob, 0);
+                
+                return { probabilities, expectedValue, d };
+            } else {
+                const unseenCreatures = C - Cvis;
+                const unseenNonCreatures = N - Nvis;
+                const unseenTotal = unseenCreatures + unseenNonCreatures;
+                
+                const expectedValue = sampleSize * unseenCreatures / unseenTotal;
+                
+                const probabilities = [];
+                for (let k = 0; k <= sampleSize; k++) {
+                    let totalProb = 0;
+                    
+                    for (let cOpponent = 0; cOpponent <= Math.min(h, unseenCreatures); cOpponent++) {
+                        if (h - cOpponent > unseenNonCreatures) continue;
+                        
+                        const probHandComposition = hypergeometric(unseenCreatures, unseenNonCreatures, h, cOpponent);
+                        const creaturesInLib = unseenCreatures - cOpponent;
+                        const nonCreaturesInLib = unseenNonCreatures - (h - cOpponent);
+                        const probRevealGivenHand = hypergeometric(creaturesInLib, nonCreaturesInLib, sampleSize, k);
+                        
+                        totalProb += probHandComposition * probRevealGivenHand;
+                    }
+                    
+                    probabilities.push({ k, prob: totalProb });
+                }
+                
+                return { probabilities, expectedValue, d };
+            }
+        }
+
+        function calculate() {
+            const perspective = document.getElementById('perspective').value;
+            const spell = document.getElementById('spell').value;
+            
+            if (!perspective || !spell) {
+                alert('Please select both perspective and spell!');
+                return;
+            }
+            
+            const C = parseInt(document.getElementById('totalCreatures').value);
+            const N = parseInt(document.getElementById('totalNonCreatures').value);
+            const Cvis = parseInt(document.getElementById('visibleCreatures').value);
+            const Nvis = parseInt(document.getElementById('visibleNonCreatures').value);
+            const h = parseInt(document.getElementById('handSize').value);
+            const c = perspective === 'player' ? parseInt(document.getElementById('creaturesInHand').value) : 0;
+            
+            const sampleSize = spell === 'winding' ? 4 : 5;
+            const spellName = spell === 'winding' ? 'Winding Way' : 'Lead the Stampede';
+            const isPerspectivePlayer = perspective === 'player';
+            
+            if (C + N !== 60) {
+                alert('Total creatures + non-creatures must equal 60!');
+                return;
+            }
+            
+            if (Cvis > C || Nvis > N) {
+                alert('Visible cards cannot exceed total cards!');
+                return;
+            }
+            
+            if (isPerspectivePlayer && c > h) {
+                alert('Creatures in hand cannot exceed hand size!');
+                return;
+            }
+            
+            const results = calculateProbabilities(C, N, Cvis, Nvis, h, c, sampleSize, isPerspectivePlayer);
+            displayResults(results, spellName, perspective);
+        }
+
+        function displayResults(results, spellName, perspective) {
+            const resultsDiv = document.getElementById('results');
+            const expectedValueDisplay = document.getElementById('expectedValueDisplay');
+            const tableDisplay = document.getElementById('tableDisplay');
+            const infoBox = document.getElementById('infoBox');
+            
+            resultsDiv.classList.add('show');
+            
+            expectedValueDisplay.innerHTML = `
+                <p style="text-align: center; color: #64748b; margin-bottom: 8px; font-size: 0.95em;">Expected Creatures Revealed</p>
+                <div class="expected-value">${results.expectedValue.toFixed(2)}</div>
+            `;
+            
+            let tableHTML = '<table class="prob-table"><thead><tr><th>Creatures (k)</th><th>Probability</th>';
+            tableHTML += '<th>P(X ≥ k)</th><th>P(X ≤ k)</th>';
+            tableHTML += '</tr></thead><tbody>';
+            
+            let cumulativeUp = 0;
+            let cumulativeDown = 0;
+            
+            // First pass: calculate cumulative down (from 0 to k)
+            const cumulativeDownValues = [];
+            for (let i = 0; i < results.probabilities.length; i++) {
+                cumulativeDown += results.probabilities[i].prob;
+                cumulativeDownValues.push(cumulativeDown);
+            }
+            
+            // Second pass: display table from high to low
+            for (let i = results.probabilities.length - 1; i >= 0; i--) {
+                const p = results.probabilities[i];
+                cumulativeUp += p.prob;
+                tableHTML += `<tr>
+                    <td><strong>${p.k}</strong></td>
+                    <td>${(p.prob * 100).toFixed(2)}%</td>`;
+                tableHTML += `<td>${(cumulativeUp * 100).toFixed(2)}%</td>`;
+                tableHTML += `<td>${(cumulativeDownValues[i] * 100).toFixed(2)}%</td>`;
+                tableHTML += '</tr>';
+            }
+            tableHTML += '</tbody></table>';
+            tableDisplay.innerHTML = tableHTML;
+            
+            displayChart(results.probabilities, spellName);
+            
+            const prob2Plus = results.probabilities.filter(p => p.k >= 2).reduce((sum, p) => sum + p.prob, 0);
+            const prob3Plus = results.probabilities.filter(p => p.k >= 3).reduce((sum, p) => sum + p.prob, 0);
+            
+            let infoText = '';
+            if (perspective === 'opponent') {
+                infoText = `<p><strong>Key Thresholds:</strong> ${(prob2Plus * 100).toFixed(1)}% chance of ≥2 creatures, ${(prob3Plus * 100).toFixed(1)}% chance of ≥3 creatures.</p>
+                <p style="margin-top: 8px;"><strong>Note:</strong> The expected value of ${results.expectedValue.toFixed(2)} is independent of hand size and uses only observable information (visible cards and estimated deck composition).</p>`;
+            } else {
+                infoText = `<p><strong>Key Thresholds:</strong> ${(prob2Plus * 100).toFixed(1)}% chance of ≥2 creatures, ${(prob3Plus * 100).toFixed(1)}% chance of ≥3 creatures.</p>`;
+            }
+            infoBox.innerHTML = infoText;
+        }
+
+        function displayChart(probabilities, spellName) {
+            const ctx = document.getElementById('probabilityChart').getContext('2d');
+            
+            if (chart) {
+                chart.destroy();
+            }
+            
+            const labels = probabilities.map(p => p.k.toString());
+            const data = probabilities.map(p => p.prob * 100);
+            
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Probability (%)',
+                        data: data,
+                        backgroundColor: 'rgba(22, 163, 74, 0.8)',
+                        borderColor: 'rgba(21, 128, 61, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: `Probability Distribution - ${spellName}`,
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            },
+                            color: '#14532d'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Probability (%)',
+                                font: {
+                                    size: 13,
+                                    weight: 'bold'
+                                },
+                                color: '#475569'
+                            },
+                            ticks: {
+                                color: '#64748b'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Creatures Revealed',
+                                font: {
+                                    size: 13,
+                                    weight: 'bold'
+                                },
+                                color: '#475569'
+                            },
+                            ticks: {
+                                color: '#64748b'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
